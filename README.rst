@@ -1,6 +1,6 @@
-=================================
-nodebase topology for clusterdock
-=================================
+==========================================
+nodebase kerberos topology for clusterdock
+==========================================
 
 This repository houses the **nodebase kerberos** topology for `clusterdock`_.
 

@@ -25,8 +25,8 @@ node groups:
 start args:
     --kerberos-config-directory:
         default: ~/.clusterdock/kerberos
-        help: If specified, mounts this directory to KDC container for Kerberos config files.
+        help: Mounts this directory to KDC container for Kerberos config files
         metavar: path
     --kerberos-principals:
-        help: If specified, a comma-separated list of Kerberos user principals to create in KDC.
+        help: If specified, a comma-separated list of Kerberos user principals to create in KDC
         metavar: princ1,princ2,...
