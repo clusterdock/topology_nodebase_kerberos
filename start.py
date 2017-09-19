@@ -20,6 +20,7 @@ from clusterdock.utils import wait_for_condition
 
 logger = logging.getLogger('clusterdock.{}'.format(__name__))
 
+DEFAULT_NAMESPACE = 'clusterdock'
 DEFAULT_OPERATING_SYSTEM = 'centos6.6'
 
 KDC_ACL_FILENAME = '/var/kerberos/krb5kdc/kadm5.acl'
@@ -30,15 +31,13 @@ KDC_KRB5_CONF_FILENAME = '/etc/krb5.conf'
 
 
 def main(args):
-    image = '{}/{}/topology_nodebase:{}'.format(args.registry,
-                                                args.namespace,
+    image = '{}/{}/topology_nodebase:{}'.format(args.registry, args.namespace or DEFAULT_NAMESPACE,
                                                 args.operating_system or DEFAULT_OPERATING_SYSTEM)
     nodes = [Node(hostname=hostname, group='nodes', image=image)
              for hostname in args.nodes]
 
     kerberos_volume_dir = args.kerberos_config_directory.replace('~', expanduser('~'))
-    kdc_image = '{}/{}/topology_nodebase_kerberos:{}'.format(args.registry,
-                                                             args.namespace,
+    kdc_image = '{}/{}/topology_nodebase_kerberos:{}'.format(args.registry, args.namespace or DEFAULT_NAMESPACE,
                                                              args.operating_system or DEFAULT_OPERATING_SYSTEM)
     kdc_hostname = args.kdc_node[0]
     kdc_node = Node(hostname=kdc_hostname, group='kdc', image=kdc_image,
