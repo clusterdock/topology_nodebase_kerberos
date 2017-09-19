@@ -65,9 +65,9 @@ def main(args):
     kdc_conf_data = kdc_node.get_file(KDC_CONF_FILENAME)
     kdc_node.put_file(KDC_CONF_FILENAME,
                       re.sub(r'EXAMPLE.COM', realm,
-                             kdc_conf_data.replace(r'[kdcdefaults]',
-                                                   '[kdcdefaults]\n '
-                                                   'max_renewablelife = 7d\n max_life = 1d')))
+                             re.sub(r'\[kdcdefaults\]',
+                                    r'[kdcdefaults]\n max_renewablelife = 7d\n max_life = 1d',
+                                    kdc_conf_data)))
     acl_data = kdc_node.get_file(KDC_ACL_FILENAME)
     kdc_node.put_file(KDC_ACL_FILENAME, re.sub(r'EXAMPLE.COM', realm, acl_data))
 
@@ -97,7 +97,6 @@ def main(args):
         'authconfig --enablekrb5 --update'
     ])
 
-    kdc_commands.append('sleep 3')  # sleep few seconds to have Docker volume available
     kdc_commands.append('cp -f {} {}'.format(KDC_KRB5_CONF_FILENAME, KERBEROS_VOLUME_DIR))
     if args.kerberos_principals:
         kdc_commands.append('chmod 644 {}'.format(KDC_KEYTAB_FILENAME))
