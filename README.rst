@@ -35,9 +35,9 @@ To see full usage instructions for the ``start`` action, use ``-h``/``--help``:
     $ clusterdock start topology_nodebase_kerberos -h
     usage: clusterdock start [--always-pull] [--namespace ns] [--network nw]
                              [-o sys] [-r url] [-h]
-                             [--kerberos-config-directory KERBEROS_CONFIG_DIRECTORY]
+                             [--kerberos-config-directory path]
                              [--kerberos-principals princ1,princ2,...]
-                             [--node-disks map] [--kdc-node node [node ...]]
+                             [--kdc-node node [node ...]]
                              [--nodes node [node ...]]
                              topology
 
@@ -54,7 +54,7 @@ To see full usage instructions for the ``start`` action, use ``-h``/``--help``:
       --network nw          Docker network to use (default: cluster)
       -o sys, --operating-system sys
                             Operating system to use for cluster nodes (default:
-                            centos6.6)
+                            None)
       -r url, --registry url
                             Docker Registry from which to pull images (default:
                             docker.io)
