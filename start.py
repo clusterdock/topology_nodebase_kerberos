@@ -12,8 +12,8 @@
 # limitations under the License.
 
 import logging
+import os
 import re
-from os.path import expanduser
 
 from clusterdock.models import Cluster, Node
 from clusterdock.utils import wait_for_condition
@@ -32,9 +32,7 @@ KDC_KRB5_CONF_FILENAME = '/etc/krb5.conf'
 
 
 def main(args):
-    global quiet_logging
-    quiet_logging = not args.verbose
-    kerberos_volume_dir = args.kerberos_config_directory.replace('~', expanduser('~'))
+    kerberos_volume_dir = os.path.expanduser(args.kerberos_config_directory)
 
     image = '{}/{}/topology_nodebase:{}'.format(args.registry, args.namespace or DEFAULT_NAMESPACE,
                                                 args.operating_system or DEFAULT_OPERATING_SYSTEM)
@@ -54,7 +52,6 @@ def main(args):
 
     logger.info('Updating KDC configurations ...')
     realm = cluster.network.upper()
-    # Update configurations
     krb5_conf_data = kdc_node.get_file(KDC_KRB5_CONF_FILENAME)
     kdc_node.put_file(KDC_KRB5_CONF_FILENAME,
                       re.sub(r'EXAMPLE.COM', realm,
@@ -102,25 +99,23 @@ def main(args):
         kdc_commands.append('chmod 644 {}'.format(KDC_KEYTAB_FILENAME))
 
     kdc_node.execute(command="bash -c '{}'".format('; '.join(kdc_commands)),
-                     quiet=quiet_logging)
+                     quiet=not args.verbose)
 
     logger.info('Validating service health ...')
-    _validate_service_health(node=kdc_node, services=['krb5kdc', 'kadmin'])
+    _validate_service_health(node=kdc_node, services=['krb5kdc', 'kadmin'], quiet=not args.verbose)
 
 
-def _validate_service_health(node, services):
+def _validate_service_health(node, services, quiet=True):
     def condition(node, services):
-        if all(0 == (node.execute(command='service {} status'.format(service),
-                                  quiet=quiet_logging).exit_code)
-               for service in services):
-            return True
-        else:
+        services_with_poor_health = [service
+                                     for service in services
+                                     if node.execute(command='service {} status'.format(service),
+                                                     quiet=quiet).exit_code != 0]
+        if services_with_poor_health:
             logger.debug('Services with poor health: %s',
-                         ', '.join(service
-                                   for service in services
-                                   if 0 !=
-                                   node.execute(command='service {} status'.format(service),
-                                                quiet=quiet_logging).exit_code))
+                         ', '.join(services_with_poor_health))
+        # Return True if the list of services with poor health is empty.
+        return not bool(services_with_poor_health)
 
     def success(time):
         logger.debug('Validated service health in %s seconds.', time)
