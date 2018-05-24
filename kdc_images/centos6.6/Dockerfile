@@ -17,6 +17,11 @@ RUN yum -y install authconfig \
     krb5-workstation \
     pam_krb5
 
+# Stop the Kerberos services from automatically starting to avoid
+# race conditions associated with initial configuration.
+RUN chkconfig krb5kdc off && \
+    chkconfig kadmin off
+
 VOLUME /kdc
 
 CMD ["/sbin/init"]
